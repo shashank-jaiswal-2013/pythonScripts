@@ -12,3 +12,6 @@ Add it your environment variable and invoke the script via command line.
 4. <b>generateThumbnail.py</b> :: Downloads album-art for particular album/movie. Makes use of mediawiki-api
 
 5. <b>tweetCount.py</b> :: Tweet counter in python for beaglebone black micro-controller
+
+6. <b>basicHTTPServer.py</b> :: Implements the standard GET and HEAD requests. Displays filesize, filetype, album-art in browser
+
