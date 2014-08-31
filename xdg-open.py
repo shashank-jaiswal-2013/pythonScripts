@@ -311,6 +311,7 @@ def start(fileName):
         subprocess.call('''vlc.py "'''+ fileName + '''"''', shell=True);
     else:
         os.startfile(fileName);
+    return 'Finished...';
 
 
 if __name__ == '__main__':
@@ -318,8 +319,8 @@ if __name__ == '__main__':
     if(len(sys.argv)>=2):
         if(sys.argv[1]=='--cwd' or os.path.isdir(sys.argv[1]) or os.path.isfile(sys.argv[1])):
                 if(os.path.isfile(sys.argv[1])):
-                        start(sys.argv[1]);
-                        
+                        print(start(sys.argv[1]));
+                        exit();
                 cwd = os.getcwd();
                 if(os.path.isdir(sys.argv[1])):
                         cwd = os.path.abspath(sys.argv[1]);
