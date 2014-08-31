@@ -38,6 +38,7 @@ import mutagen;
 
 searchMode = '';
 args = [];
+cwd = '';
 
 
 def add_flac_cover(filename, albumart):
@@ -79,12 +80,12 @@ def recursivelyListAllFilesInDir(dirAbsName):
 def openFileFromCurrDir(inp):
         #inp is a string
         inp = inp.lower();
-        print 'The regex to search for: ', inp, ' in ', os.getcwd(), ' directory'
+        print 'The regex to search for: ', inp, ' in ', cwd, ' directory'
         filesListinCDIR = [];
         if('--rsv' in args):
-                filesListinCDIR = recursivelyListAllFilesInDir(os.getcwd());
+                filesListinCDIR = recursivelyListAllFilesInDir(cwd);
         else:
-                for x in os.listdir(os.getcwd()):
+                for x in os.listdir(cwd):
                         if os.path.isfile(x):
                                 filesListinCDIR.append(x);
         
@@ -175,7 +176,7 @@ def updateDatabaseForCurrDir(inp):
         sys.stdout.flush()
 
         if('--rsv' in args):
-                filesListinCDIR = recursivelyListAllFilesInDir(os.getcwd());
+                filesListinCDIR = recursivelyListAllFilesInDir(cwd);
 
         randInt = random.randint(10,25);
         sys.stdout.write("\rUpdating Database: "+str(randInt)+"%")
@@ -184,7 +185,7 @@ def updateDatabaseForCurrDir(inp):
         numberOfFiles = len(filesListinCDIR);
         dummyCount = 0;
         
-        conn = sqlite3.connect(os.getcwd()+'\\fileDb.db')
+        conn = sqlite3.connect(cwd+'\\fileDb.db')
         conn.text_factory = str
         c2 = conn.cursor()
         try:
@@ -213,16 +214,16 @@ def updateDatabaseForCurrDir(inp):
 
 def openFileFromCurrDirViaDb(inp):
         inp = inp.lower();
-        print 'The regex to search for: ', inp, ' in ', os.getcwd(), ' directory using Db'
+        print 'The regex to search for: ', inp, ' in ', cwd, ' directory using Db'
 
         inp = inp.replace('.', '\.')
         inp = inp.replace('*', '.+')
         matchedFiles = [];
         
-        if(os.path.exists(os.getcwd()+'\\fileDb.db')==False):
+        if(os.path.exists(cwd+'\\fileDb.db')==False):
                 print '''No database found in current Directory \n remove --fromDb or run "xdg-open.py --cwd --rsv --update"''';
         else:
-                conn2 = sqlite3.connect(os.getcwd()+'\\fileDb.db')
+                conn2 = sqlite3.connect(cwd+'\\fileDb.db')
                 conn2.text_factory = str;
                 c3 = conn2.cursor()
                 res = c3.execute('SELECT * FROM files')
@@ -299,12 +300,29 @@ def openFileFromCurrDirViaDb(inp):
         return 'Finished...';
                                 
 
+def start(fileName):
+    print 'Started', fileName;
+    if fileName.endswith('.mp3'):
+        id3r = id3reader.Reader(fileName);
+        print 'Title:', id3r.getValue('title');
+        print 'Album:', id3r.getValue('album');
+        print 'Artist:', id3r.getValue('performer');
+        print 'Year:', id3r.getValue('Year');
+        subprocess.call('''vlc.py "'''+ fileName + '''"''', shell=True);
+    else:
+        os.startfile(fileName);
 
 
 if __name__ == '__main__':
     args = sys.argv;
-    if(len(sys.argv)>2):
-        if(sys.argv[1]=='--cwd'):
+    if(len(sys.argv)>=2):
+        if(sys.argv[1]=='--cwd' or os.path.isdir(sys.argv[1]) or os.path.isfile(sys.argv[1])):
+                if(os.path.isfile(sys.argv[1])):
+                        start(sys.argv[1]);
+                        
+                cwd = os.getcwd();
+                if(os.path.isdir(sys.argv[1])):
+                        cwd = os.path.abspath(sys.argv[1]);
                 if not ('--update' in args):
                         if('--mp3' in args):
                                 searchMode = '--mp3';
